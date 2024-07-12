@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Valuation", "Breakeven Point"])
+section = st.sidebar.radio("Go to", ["Valuation", "Breakeven Point", "WACC and Cost of Equity Calculator"])
 
 # Valuation Section
 if section == "Valuation":
@@ -128,3 +128,35 @@ elif section == "Breakeven Point":
         st.pyplot(plt.gcf())
     else:
         st.write("Please enter positive values for sales price, variable cost, and fixed cost.")
+
+# WACC and Cost of Equity Section
+elif section == "WACC and Cost of Equity Calculator":
+    st.title("WACC and Cost of Equity Calculator")
+
+    # CAPM Parameters
+    rf = st.number_input("Risk-free Rate (Rf)", value=0.03, min_value=0.0, max_value=1.0, format="%.5f")
+    beta = st.number_input("Beta (β)", value=1.0, min_value=0.0, max_value=10.0, format="%.5f")
+    rm = st.number_input("Expected Market Return (Rm)", value=0.08, min_value=0.0, max_value=1.0, format="%.5f")
+
+    # WACC Parameters
+    E = st.number_input("Market Value of Equity (E)", value=1000000.0, min_value=0.0)
+    D = st.number_input("Market Value of Debt (D)", value=500000.0, min_value=0.0)
+    rd = st.number_input("Cost of Debt (Rd)", value=0.05, min_value=0.0, max_value=1.0, format="%.5f")
+    tax_rate = st.number_input("Corporate Tax Rate", value=0.21, min_value=0.0, max_value=1.0, format="%.5f")
+
+    # Calculate Cost of Equity using CAPM
+    def calculate_cost_of_equity(rf, beta, rm):
+        return rf + beta * (rm - rf)
+
+    # Calculate WACC
+    def calculate_wacc(E, D, re, rd, tax_rate):
+        V = E + D
+        wacc = (E / V) * re + (D / V) * rd * (1 - tax_rate)
+        return wacc
+
+    if st.button("Calculate"):
+        cost_of_equity = calculate_cost_of_equity(rf, beta, rm)
+        wacc = calculate_wacc(E, D, cost_of_equity, rd, tax_rate)
+
+        st.write(f"Cost of Equity (Re) using CAPM: {cost_of_equity:.2f}")
+        st.write(f"Weighted Average Cost of Capital (WACC): {wacc:.2f}")
