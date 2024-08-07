@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Valuation", "Breakeven Point", "WACC and Cost of Equity Calculator"])
+section = st.sidebar.radio("Go to", ["Valuation", "Breakeven Point", "WACC and Cost of Equity Calculator", "Bond Valuation"])
 
 # Valuation Section
 if section == "Valuation":
@@ -160,3 +160,35 @@ elif section == "WACC and Cost of Equity Calculator":
 
         st.write(f"Cost of Equity (Re) using CAPM: {cost_of_equity:.2f}")
         st.write(f"Weighted Average Cost of Capital (WACC): {wacc:.2f}")
+
+# Bond Valuation Section
+elif section == "Bond Valuation":
+    st.title("Bond Valuation Calculator")
+
+    def calculate_bond_value(face_value, coupon_rate, market_rate, years, frequency):
+        # Calculate the coupon payment
+        periods = {'Yearly': 1, 'Half-Yearly': 2, 'Quarterly': 4}
+        n_periods = periods[frequency]
+        coupon_payment = face_value * coupon_rate / n_periods
+        bond_value = 0
+        
+        # Calculate the present value of the coupon payments
+        for t in range(1, years * n_periods + 1):
+            bond_value += coupon_payment / (1 + market_rate / n_periods) ** t
+        
+        # Calculate the present value of the face value
+        bond_value += face_value / (1 + market_rate / n_periods) ** (years * n_periods)
+        
+        return bond_value
+
+    # Input fields
+    face_value = st.number_input("Face Value", value=1000.0)
+    coupon_rate = st.number_input("Coupon Rate (in %)", value=5.0) / 100
+    market_rate = st.number_input("Market Rate (in %)", value=3.0) / 100
+    years = st.number_input("Number of Years", value=10, min_value=1)
+    frequency = st.selectbox("Coupon Payment Frequency", ['Yearly', 'Half-Yearly', 'Quarterly'])
+
+    # Calculate bond value
+    if st.button("Calculate Bond Value"):
+        bond_value = calculate_bond_value(face_value, coupon_rate, market_rate, years, frequency)
+        st.write(f"The value of the bond is: ${bond_value:.2f}")
